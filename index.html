@@ -1,10 +1,243 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>JGMaker Magic BLTouch Modification and Firmware</title>
+  <title>JGMaker Magic BLTouch Modification</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link href="https://fonts.googleapis.com/css?family=B612+Mono|Cabin:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fonts/icomoon/style.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+  <link rel="stylesheet" href="css/aos.css">
+  <link rel="stylesheet" href="css/style.css">
+
 </head>
+
 <body>
-<h1>Coming Soon</h1>
-<p>This page will soon host the guide to modifying your JGMaker Magic 3D printer to add the ability to use a BLTouch or clones self leveling probe. Custom firmware has also been created for the JGMaker Magic to enable the use of the probe.</p>
+  <div class="site-wrap">
+    <div class="site-section">
+      <div class="container">
+
+        <div class="row">
+          <div class="col-lg-8 single-content">
+            <h1 class="mb-4">
+              JGMaker Magic board modification for BLTouch<br />(and clones)
+            </h1>
+            <h4>The Story</h4>
+            <p>You've got a JGMaker Magic 3D printer and it works great, but there is only one thing you hate having to
+              do time and time again: level the bed.
+              You look up ways of automating this process, and yes the Marlin firmware supports it, and oh look an
+              awesome automatic probe! You quickly turn
+              off your 3D printer and eagerly flip it over, looking over the board you see all these cables plugged in
+              but what's this? No place to hook up
+              any additional items such as this really awesome automatic bed leveling probe? Bah! You quickly flip the
+              table (╯°□°）╯︵ ┻━┻ .
+            </p>
+            <p>OK well maybe not the last part about flipping over the table is true, but that is what went through my
+              mind when I first thought about adding
+              a BLTouch to my JGMaker Magic. So I searched, saw one post saying it was impossible to add to the JGMaker
+              Magic, but I won't take impossible for
+              an answer. After doing more research I found what I was looking for, the X, Y, Z pin outs should support
+              PWM and servo
+              control, even better if one of these are not in use you can re-allocate that pin to anything you want!
+              Perfect! Now, with the back story on how
+              I spent a couple of weeks in my free time researching on how to make it work, let's get down to modding!
+            </p>
+            <p>
+            <h4>What you will need:</h4><br />
+            <ul>
+              <li><a href="https://github.com/cnorton-webdev/jg_maker_magic_v03_bltouch" target="_blank">New
+                  firmware</a></li>
+              <li>A mount for your BLTouch or clone - I created one <a href="https://www.thingiverse.com/thing:4541909"
+                  target="_blank">here</a></li>
+              <li>Soldering iron</li>
+              <li>Solder</li>
+              <li>Male header pins ($5 on Amazon)</li>
+              <li>(optional) Volt meter</li>
+              <li>Hex 2.5 driver to remove bolts holding board</li>
+              <li>Flat head screw driver</li>
+              <li>(optional) anti-static wrist band</li>
+              <li>Patience</li>
+            </ul>
+            </p>
+            <h4>Legal stuff</h4>
+            <p>I am not responsible in any way, shape or form if you damage your 3D printer!<br />
+              <strong>You are doing this modification at your own risk!</strong><br />
+              This will void your warrenty with JGMaker, you acknowledge that by continuing you agree to accept the
+              risk.
+            </p>
+            <h4>Learning from mistakes</h4>
+            <p>I wanted to include this little section at the start because I wanted to highlight something unusual
+              about the board for the JGMaker Magic that I did not know until after I had tested with the board out,
+              the probe worked and then put everything back together and it wasn't working anymore.
+              I originally planned to use the X- connector, but as it turns out there is a reason JGMaker put the X-
+              switch on the X+ location.
+              For some odd reason and it's still not clear to me as to why but the signal pin on X- is
+              hooked up
+              to something in the hotend wire bundle that prevents the X- signal pin from working when the hotend wire
+              bundle
+              is hooked up to the board. Very strange. So in the video at the end of this guide, you'll see it hooked up
+              to the X- pins instead of Y+ and that is why. Don't worry, the firmware has been updated to use Y+ pins we
+              will be using and the probe functions exactly the same.
+            </p>
+            <h4>Removing the board</h4>
+            <p>Turn off your 3D printer and <strong>UNPLUG</strong> the power cable from the back of the printer. I
+              can't stress this enough, you need to make
+              sure the power cable is completely disconnected from the printer or unplugged from the wall. Once you have
+              done this you will need to tilt the
+              printer backwards so the front of the printer is now up in the air and the underside is exposed.
+            </p>
+            <p class="mb-5">
+              <img src="images/jgmaker_magic_underside.jpg" alt="JGMaker Magic underside" class="img-fluid">
+              JGMaker Magic underside showing board and cables unplugged
+            </p>
+            <p>Carefully start unplugging the cables from the board, note that the HOT BED and bundle going to the
+              hotend have clips on the cables that you
+              will need to release to be able to unplug them from the board. Use caution not to pull the cables out too
+              hard to avoid damage. You will also
+              notice a black and red wire coming from the power supply to the board, this is why you must make sure to
+              unplug the printer from the outlet.
+              Use your flat head screw driver to loosen the terminal lugs and the wires will slide right out. Make sure
+              not to unscrew the terminal lugs
+              all the way out as just loosening them is enough to free the wires.
+            </p>
+            <p>Once all the cables are disconnected from the board, you can now unscrew the 4 bolts (2 top, 2 bottom)
+              holding the board to the base of the
+              3D printer. Avoid directly touching any of the chips on the board and try to only handle the board by the
+              edges to reduce chances of static
+              discharge if you do not have an anti-static wrist band. Take the board to where you will be soldering it.
+            </p>
+            <h4>The hard part: soldering the new connection</h4>
+            <p class="mb-5">
+              <img src="images/board_pin_location.jpg" alt="New pin location for adding BLTouch" class="img-fluid">
+              Location of where we will be adding the new header pins for the BLTouch
+            </p>
+            <p class="mb-5">
+              <img src="images/pin_location_top_down.jpg" alt="New pin location for adding BLTouch" class="img-fluid">
+              Close up of location of where we will be adding the new header pins for the BLTouch
+            </p>
+            <p>In the pictures above you can see the location we will be adding our header pins to.
+              Prepare your header pins by breaking off a group of 3 pins so you have pins that are like below.</p>
+            <p class="mb-5">
+              <img src="images/header_pins.jpg" alt="Header pins" class="img-fluid">
+              Header pins
+            </p>
+            <p>There is no need to seperate each individual header pin as the spacing on the PCB fits the spacing of the
+              header
+              pins.
+              Once you have the header pins in place (short end goes through the PCB) solder them
+              in place from the bottom of the board so that the header pins are soldered to the contact pads on the
+              bottom
+              of the board.
+            </p>
+            <h4>The hard part is done, on to testing!</h4>
+            <p>Now we have an awesome new connection on the board! The hard part is over! As you might have noticed on
+              the PCB below the X-
+              pins location are the letters S, G and V. This is important to note for when hooking up the BLTouch
+              (or clone) to the board.
+              The S stands for Signal and will be used for the signal connection. The G is ground, this is where you
+              want to hook the ground
+              connection to. The V is voltage (VCC), this is what will be used to hook up to the VCC (5V+). Please
+              refer to the documentation
+              for your probe on which colored wire for your device goes to which connection. Just make sure to hook them
+              up
+              following the order printed under the X- space (S G V).
+            </p>
+            <p class="mb-5">
+              <img src="images/probe_connected.jpg" alt="Header pins" class="img-fluid">
+              Probe connected to new header pins connection
+            </p>
+            <p> This step is optional but is a good way to confirm the header pins have been properly soldered into
+              place.<br />
+              On a safe surface such as a wood desk, glass desk, piece of card board let's verify our new connection
+              is getting voltage and is
+              grounded properly. We don't need to hook it up to the power supply, we simply need to hook the USB cable
+              up to the board to supply
+              enough power for testing. Using your volt meter set it to measure DC volts, I use the battery load test 6V
+              feature on my volt meter in this case. Place your probes in the correct location on our new
+              header pins, black to Ground
+              and Red to the VCC pin. Make sure not to cross these pins or you risk shorting out your board! You should
+              get 5V reading like below.
+            </p>
+            <p class="mb-5">
+              <img src="images/pin_output_voltage.jpg" alt="Header pins" class="img-fluid">
+              New header pin outputting 5.00 volts
+            </p>
+            <p>That's it! You're done with the hardware modifications to the board. Bolt your board back onto your 3D
+              printer. Hook everything back up, make sure when hooking your power supply
+              up that the red wire goes in the + terminal and black into the - terminal, which should be Black wire into
+              top terminal and red wire into
+              the bottom terminal. Turn your printer on, verify it's still working, print your BLTouch mount for the
+              JGMaker Magic from <a href="#" target="_blank">here</a>,
+              follow the directions and flash the new firmware located <a href="#" target="_blank">here</a> and you're
+              all set! No more manual bed leveling.</p>
+            <h4>Video Demonstration using BLTouch clone</h4>
+            <video style="width:100%;" controls preload="none" poster="images/video_snapshot.jpg">
+              <source src="images/working_touch_probe.mp4" type="video/mp4" />
+              <img src="images/video_snapshot.jpg" style="width:100%;"
+                alt="Video showing working touch probe on JGMaker Magic"
+                title="No video playback capabilities, please download the video below" />
+            </video>
+            <p> <strong>Download Video:</strong>
+              <a href="images/working_touch_probe.mp4">"MP4"</a>
+            </p>
+			<video style="width:100%;" controls preload="none" poster="images/video_snapshot2.jpg">
+              <source src="images/jgmaker_magic_bltouch_leveling.mp4" type="video/mp4" />
+              <img src="images/video_snapshot2.jpg" style="width:100%;"
+                alt="Video showing working touch probe leveling on JGMaker Magic"
+                title="No video playback capabilities, please download the video below" />
+            </video>
+            <p> <strong>Download Video:</strong>
+              <a href="images/jgmaker_magic_bltouch_leveling.mp4">"MP4"</a>
+            </p>
+			
+            <h4>Signal pin output</h4>
+            <p>These pictures simply show the signal pin output working correctly when given the M401 and M402 commands
+              on the new firmware.</p>
+            <p class="mb-5">
+              <img src="images/M401_signal_from_pin.jpg" alt="M401 signal sent" class="img-fluid">
+              M401 command sent and signal pin output
+            </p>
+            <p class="mb-5">
+              <img src="images/M402_signal_from_pin.jpg" alt="M402 signal sent" class="img-fluid">
+              M402 command sent and signal pin output
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="copyright">
+            <p>
+              Copyright &copy;
+              <script>document.write(new Date().getFullYear());</script> Christopher Norton. All rights reserved
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- .site-wrap -->
+
+  <!-- loader -->
+  <div id="loader" class="show fullscreen"><svg class="circular" width="48px" height="48px">
+      <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" />
+      <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10"
+        stroke="#ff5e15" /></svg></div>
+
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/aos.js"></script>
+  <script src="js/jquery.sticky.js"></script>
+  <script src="js/main.js"></script>
 </body>
+
 </html>
